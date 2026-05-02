@@ -1,13 +1,18 @@
 type GenericRow = Record<string, unknown>;
 
+type SupabaseQueryResult = PromiseLike<{
+  data: GenericRow[] | null;
+  error: unknown;
+}>;
+
 type SupabaseTable = {
   select: (query: string) => {
-    limit: (value: number) => Promise<{ data: GenericRow[] | null; error: unknown }>;
+    limit: (value: number) => SupabaseQueryResult;
     order: (
       column: string,
       options?: { ascending?: boolean },
     ) => {
-      limit: (value: number) => Promise<{ data: GenericRow[] | null; error: unknown }>;
+      limit: (value: number) => SupabaseQueryResult;
     };
   };
 };

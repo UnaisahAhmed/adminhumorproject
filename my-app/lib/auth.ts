@@ -1,18 +1,24 @@
+type SuperAdminQueryResult = PromiseLike<{
+  data: { is_superadmin?: boolean } | null;
+}>;
+
 type SupabaseLike = {
   from: (table: string) => {
     select: (query: string) => {
       eq: (column: string, value: string) => {
-        maybeSingle: () => Promise<{ data: { is_superadmin?: boolean } | null }>;
+        maybeSingle: () => SuperAdminQueryResult;
       };
     };
   };
 };
 
 export async function isSuperAdmin(
-  supabase: SupabaseLike,
+  supabase: unknown,
   userId: string,
 ): Promise<boolean> {
-  const byId = await supabase
+  const client = supabase as SupabaseLike;
+
+  const byId = await client
     .from("profiles")
     .select("is_superadmin")
     .eq("id", userId)
@@ -22,7 +28,7 @@ export async function isSuperAdmin(
     return true;
   }
 
-  const byUserId = await supabase
+  const byUserId = await client
     .from("profiles")
     .select("is_superadmin")
     .eq("user_id", userId)
