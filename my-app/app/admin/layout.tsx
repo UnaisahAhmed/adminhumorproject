@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { isSuperAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { signOutAction } from "./actions";
 
@@ -16,6 +18,16 @@ export default async function AdminLayout({
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/login");
+  }
+
+  const allowed = await isSuperAdmin(supabase, user.id);
+
+  if (!allowed) {
+    redirect("/unauthorized");
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
