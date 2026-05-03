@@ -26,6 +26,16 @@ export async function loadRecentRows(
   table: string,
   limit = 25,
 ): Promise<GenericRow[]> {
+  const createdDateTime = await supabase
+    .from(table)
+    .select("*")
+    .order("created_datetime_utc", { ascending: false })
+    .limit(limit);
+
+  if (!createdDateTime.error && createdDateTime.data) {
+    return createdDateTime.data;
+  }
+
   const ordered = await supabase
     .from(table)
     .select("*")

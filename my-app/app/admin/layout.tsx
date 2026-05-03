@@ -1,15 +1,9 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { isSuperAdmin } from "@/lib/auth";
+import { adminNavGroups } from "@/lib/admin-config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { signOutAction } from "./actions";
-
-const links = [
-  { href: "/admin", label: "Dashboard" },
-  { href: "/admin/profiles", label: "Profiles" },
-  { href: "/admin/images", label: "Images" },
-  { href: "/admin/captions", label: "Captions" },
-];
 
 export default async function AdminLayout({
   children,
@@ -53,22 +47,29 @@ export default async function AdminLayout({
         </div>
       </header>
 
-      <div className="mx-auto grid w-full max-w-6xl grid-cols-1 gap-6 px-6 py-6 md:grid-cols-[200px_1fr]">
-        <nav className="rounded-lg border border-slate-200 bg-white p-3">
-          <ul className="space-y-1">
-            {links.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className="block rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+      <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 px-6 py-6 lg:grid-cols-[240px_1fr]">
+        <nav className="space-y-5 rounded-lg border border-slate-200 bg-white p-3">
+          {adminNavGroups.map((group) => (
+            <section key={group.title}>
+              <h2 className="px-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                {group.title}
+              </h2>
+              <ul className="mt-2 space-y-1">
+                {group.links.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="block rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
         </nav>
-        <main>{children}</main>
+        <main className="min-w-0">{children}</main>
       </div>
     </div>
   );
