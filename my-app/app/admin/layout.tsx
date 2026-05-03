@@ -1,9 +1,8 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { isSuperAdmin } from "@/lib/auth";
-import { adminNavGroups } from "@/lib/admin-config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { signOutAction } from "./actions";
+import { NavLinks } from "./nav-links";
 
 export default async function AdminLayout({
   children,
@@ -24,51 +23,59 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4">
+    <div className="min-h-screen" style={{ background: "var(--rf-bg)" }}>
+      {/* ── Header ───────────────────────────────────────────────── */}
+      <header style={{ background: "var(--rf-primary)" }}>
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
           <div>
-            <p className="text-xs uppercase tracking-wide text-slate-500">
+            <p
+              className="font-clash text-3xl uppercase"
+              style={{ color: "var(--rf-bg)", lineHeight: 0.9 }}
+            >
+              Admin
+            </p>
+            <p
+              className="mt-0.5 text-xs font-medium uppercase tracking-[0.18em]"
+              style={{ color: "var(--rf-accent)" }}
+            >
               Humor Class Project 2
             </p>
-            <h1 className="text-xl font-semibold">Admin Panel</h1>
           </div>
+
           <div className="flex items-center gap-4">
-            <p className="text-sm text-slate-600">{user?.email}</p>
+            <p
+              className="hidden text-xs font-medium tracking-wide sm:block"
+              style={{ color: "rgba(228,226,221,0.55)" }}
+            >
+              {user?.email}
+            </p>
             <form action={signOutAction}>
               <button
                 type="submit"
-                className="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-100"
+                className="btn-cta px-4 py-2"
+                style={{ fontSize: "0.75rem" }}
               >
-                Sign out
+                <span className="btn-cta-text">Sign out</span>
               </button>
             </form>
           </div>
         </div>
       </header>
 
-      <div className="mx-auto grid w-full max-w-7xl grid-cols-1 gap-6 px-6 py-6 lg:grid-cols-[240px_1fr]">
-        <nav className="space-y-5 rounded-lg border border-slate-200 bg-white p-3">
-          {adminNavGroups.map((group) => (
-            <section key={group.title}>
-              <h2 className="px-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                {group.title}
-              </h2>
-              <ul className="mt-2 space-y-1">
-                {group.links.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className="block rounded-md px-3 py-2 text-sm text-slate-700 hover:bg-slate-100"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
+      {/* ── Body grid ────────────────────────────────────────────── */}
+      <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-start gap-6 px-6 py-6 lg:grid-cols-[210px_1fr]">
+        {/* Sidebar */}
+        <nav
+          className="lg:sticky lg:top-6 rounded-none border p-4"
+          style={{
+            background: "var(--rf-surface)",
+            borderColor: "var(--rf-border)",
+          }}
+        >
+          <NavLinks />
         </nav>
+
+        {/* Main content */}
         <main className="min-w-0">{children}</main>
       </div>
     </div>

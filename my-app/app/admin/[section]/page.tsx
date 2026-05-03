@@ -5,9 +5,9 @@ export default async function AdminSectionPage({
   searchParams,
 }: {
   params: Promise<{ section: string }>;
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; error?: string; success?: string }>;
 }) {
   const { section } = await params;
-  const { page: rawPage } = await searchParams;
-  return <RenderAdminSectionPage section={section} rawPage={rawPage} />;
+  const { page: rawPage, error, success } = await searchParams;
+  return <RenderAdminSectionPage section={section} rawPage={rawPage} flashError={error} flashSuccess={success} />;
 }

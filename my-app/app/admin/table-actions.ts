@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { getAdminTableConfig, type AdminField } from "@/lib/admin-config";
 import { requireSuperAdmin } from "@/lib/admin-guard";
 
@@ -55,6 +56,24 @@ function getConfig(formData: FormData) {
   return config;
 }
 
+function friendlyError(message: string): string {
+  if (message.includes("foreign key constraint")) {
+    const match = message.match(/"([^"]+_fkey)"/);
+    if (match) {
+      const col = match[1].replace(/_fkey$/, "").replace(/_id$/, " ID").replace(/_/g, " ");
+      return `The ${col} you entered does not exist. Make sure you copy a valid ID from the correct table first.`;
+    }
+    return "A related record was not found. Check that any ID fields reference existing rows.";
+  }
+  if (message.includes("unique") || message.includes("duplicate")) {
+    return "A row with those values already exists.";
+  }
+  if (message.includes("not-null") || message.includes("null value")) {
+    return "A required field is missing. Please fill in all required fields.";
+  }
+  return message;
+}
+
 export async function createAdminRowAction(formData: FormData) {
   const config = getConfig(formData);
   if (!config.canCreate) {
@@ -66,11 +85,12 @@ export async function createAdminRowAction(formData: FormData) {
   const { error } = await supabase.from(config.table).insert(payload);
 
   if (error) {
-    throw new Error(error.message);
+    redirect(`/admin/${config.key}?error=${encodeURIComponent(friendlyError(error.message))}`);
   }
 
   revalidatePath("/admin");
   revalidatePath(`/admin/${config.key}`);
+  redirect(`/admin/${config.key}?success=Row+created`);
 }
 
 export async function updateAdminRowAction(formData: FormData) {
@@ -92,11 +112,12 @@ export async function updateAdminRowAction(formData: FormData) {
     .eq(config.primaryKey, rowId);
 
   if (error) {
-    throw new Error(error.message);
+    redirect(`/admin/${config.key}?error=${encodeURIComponent(friendlyError(error.message))}`);
   }
 
   revalidatePath("/admin");
   revalidatePath(`/admin/${config.key}`);
+  redirect(`/admin/${config.key}?success=Row+updated`);
 }
 
 export async function deleteAdminRowAction(formData: FormData) {
@@ -107,7 +128,7 @@ export async function deleteAdminRowAction(formData: FormData) {
 
   const confirmed = formData.get("confirmDelete") === "on";
   if (!confirmed) {
-    throw new Error("Confirm the delete checkbox before deleting.");
+    redirect(`/admin/${config.key}?error=${encodeURIComponent("Tick the confirmation checkbox before deleting.")}`);
   }
 
   const rowId = formData.get("rowId");
@@ -122,9 +143,10 @@ export async function deleteAdminRowAction(formData: FormData) {
     .eq(config.primaryKey, rowId);
 
   if (error) {
-    throw new Error(error.message);
+    redirect(`/admin/${config.key}?error=${encodeURIComponent(friendlyError(error.message))}`);
   }
 
   revalidatePath("/admin");
   revalidatePath(`/admin/${config.key}`);
+  redirect(`/admin/${config.key}?success=Row+deleted`);
 }

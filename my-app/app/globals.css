@@ -1,26 +1,199 @@
 @import "tailwindcss";
 
+/* ─── Raw Form Design System ─────────────────────────────────── */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --rf-bg:           #E4E2DD;
+  --rf-primary:      #1E1E1E;
+  --rf-accent:       #DB4A2B;
+  --rf-orange:       #F8A348;
+  --rf-pink:         #FF89A9;
+  --rf-surface:      #FFFFFF;
+  --rf-border:       rgba(30, 30, 30, 0.12);
+  --rf-muted:        rgba(30, 30, 30, 0.45);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: Arial, Helvetica, sans-serif;
+  --color-background: var(--rf-bg);
+  --color-foreground: var(--rf-primary);
+  --font-sans: 'Satoshi', Arial, Helvetica, sans-serif;
   --font-mono: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --font-clash: 'Clash Display', Arial, sans-serif;
+  --font-satoshi: 'Satoshi', Arial, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ─── Base resets ─────────────────────────────────────────────── */
+
+body {
+  background: var(--rf-bg);
+  color: var(--rf-primary);
+  font-family: 'Satoshi', Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Selection ───────────────────────────────────────────────── */
+
+::selection {
+  background-color: #DB4A2B;
+  color: #ffffff;
+}
+
+/* ─── Scrollbar ───────────────────────────────────────────────── */
+
+::-webkit-scrollbar        { width: 8px; height: 8px; }
+::-webkit-scrollbar-track  { background: #E4E2DD; }
+::-webkit-scrollbar-thumb  { background-color: #DB4A2B; border-radius: 0; }
+
+* { scrollbar-width: thin; scrollbar-color: #DB4A2B #E4E2DD; }
+
+/* ─── Transitions ─────────────────────────────────────────────── */
+
+@layer base {
+  a, button, [role="button"], summary {
+    transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    transition-duration: 200ms;
+  }
+  input, textarea, select {
+    transition-property: border-color, box-shadow;
+    transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    transition-duration: 200ms;
+  }
+  input:focus, textarea:focus, select:focus {
+    outline: none;
+    border-color: #DB4A2B;
+    box-shadow: 0 0 0 3px rgba(219, 74, 43, 0.15);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ─── Slide-up entrance animation ─────────────────────────────── */
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* stagger children */
+.animate-slide-up:nth-child(1) { animation-delay: 0ms; }
+.animate-slide-up:nth-child(2) { animation-delay: 60ms; }
+.animate-slide-up:nth-child(3) { animation-delay: 120ms; }
+.animate-slide-up:nth-child(4) { animation-delay: 180ms; }
+.animate-slide-up:nth-child(5) { animation-delay: 240ms; }
+
+/* ─── Gradient blob pulse ──────────────────────────────────────── */
+
+@keyframes blob-pulse {
+  0%, 100% { opacity: 0.55; transform: translate(0, 0) scale(1); }
+  33%       { opacity: 0.80; transform: translate(30px, -25px) scale(1.06); }
+  66%       { opacity: 0.65; transform: translate(-20px, 15px) scale(0.97); }
+}
+
+.rf-blob {
+  position: absolute;
+  width: 55vw;
+  height: 55vw;
+  border-radius: 50%;
+  filter: blur(140px);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  animation: blob-pulse 14s ease-in-out infinite;
+}
+.rf-blob-2 { animation-delay: -7s; }
+
+/* ─── CTA Button — directional fill ───────────────────────────── */
+
+.btn-cta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #1E1E1E;
+  color: #E4E2DD;
+  border-radius: 0;
+  border: none;
+  cursor: pointer;
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  transition: color 0.3s ease-out;
+  white-space: nowrap;
+}
+
+.btn-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+  transform: translateX(-101%);
+  transition: transform 0.3s ease-out;
+  z-index: 0;
+}
+
+.btn-cta:hover::before { transform: translateX(0); }
+.btn-cta:hover { color: #DB4A2B; }
+
+.btn-cta > * { position: relative; z-index: 1; }
+.btn-cta-text { position: relative; z-index: 1; }
+
+/* Danger variant */
+.btn-cta-danger {
+  background-color: #DB4A2B;
+  color: #ffffff;
+}
+.btn-cta-danger::before { background: #1E1E1E; }
+.btn-cta-danger:hover { color: #ffffff; }
+
+/* ─── Clash Display font utility ───────────────────────────────── */
+
+.font-clash {
+  font-family: 'Clash Display', Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+}
+
+/* ─── Table row hover ─────────────────────────────────────────── */
+
+.rf-table-row:hover {
+  background: rgba(219, 74, 43, 0.04) !important;
+}
+
+/* ─── Quick-start card hover ──────────────────────────────────── */
+
+.rf-quickstart-card {
+  border: 2px solid rgba(228, 226, 221, 0.12);
+  transition: border-color 0.2s ease;
+}
+
+.rf-quickstart-card:hover {
+  border-color: #DB4A2B;
+}
+
+/* ─── Action button (Edit summary) hover ─────────────────────── */
+
+.rf-action-btn:hover {
+  border-color: var(--rf-accent) !important;
+  color: var(--rf-accent) !important;
+  background: rgba(219, 74, 43, 0.06) !important;
+}
+
+/* ─── Thin scrollbar for table overflow ───────────────────────── */
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #DB4A2B #E4E2DD;
+  }
+  .scrollbar-thin::-webkit-scrollbar { height: 6px; }
+  .scrollbar-thin::-webkit-scrollbar-track { background: transparent; }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #DB4A2B;
+    border-radius: 0;
+  }
 }

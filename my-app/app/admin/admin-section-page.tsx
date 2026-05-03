@@ -9,9 +9,13 @@ const PAGE_SIZE = 25;
 export async function RenderAdminSectionPage({
   section,
   rawPage,
+  flashError,
+  flashSuccess,
 }: {
   section: string;
   rawPage?: string;
+  flashError?: string;
+  flashSuccess?: string;
 }) {
   const config = getAdminTableConfig(section);
 
@@ -33,10 +37,10 @@ export async function RenderAdminSectionPage({
     query = query.order(config.orderBy, { ascending: false });
   }
 
-  const { data, error } = await query;
+  const { data, error: queryError } = await query;
 
-  if (error) {
-    throw new Error(error.message);
+  if (queryError) {
+    throw new Error(queryError.message);
   }
 
   return (
@@ -45,6 +49,8 @@ export async function RenderAdminSectionPage({
       rows={(data ?? []) as unknown as GenericRow[]}
       page={page}
       pageSize={PAGE_SIZE}
+      error={flashError}
+      success={flashSuccess}
     />
   );
 }
